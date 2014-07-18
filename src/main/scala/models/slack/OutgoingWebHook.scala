@@ -22,7 +22,7 @@ case class OutgoingWebHook(
   lazy val content: String = this.text.getOrElse("")
   lazy val acceptable: Boolean = (this.user_id != "USLACKBOT") && this.text.isDefined
   lazy val team: SlackTeam = Api.teams.from(this.team_id, Option(this.team_domain))
-  lazy val user: User = User(this.user_id, Option(this.user_name))
+  lazy val user: SlackUser = SlackUser(this.user_id, Option(this.user_name))
   lazy val channel: Channel = Channel(this.channel_id, Option(this.channel_name))
 
   lazy val command: Option[Command] = this.trigger_word.flatMap { tword =>
