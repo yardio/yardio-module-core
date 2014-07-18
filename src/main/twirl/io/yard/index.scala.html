@@ -1,0 +1,43 @@
+@(modules: Seq[io.yard.core.models.Module], teams: Seq[io.yard.core.models.Team], modulePrefix: String)
+
+@io.yard.html.main {
+
+<p>You have currently @{modules.size} module@if(modules.size > 1) { s } running.</p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Controller?</th>
+      <th>Actor?</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for(module <- modules) {
+      <tr>
+        <td><a href="@{modulePrefix + module.name}">@module.name</a></td>
+        <td>@module.controller.map{ _ => true }.getOrElse(false).toString</td>
+        <td>@module.actor.map{ _ => true }.getOrElse(false).toString</td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+<p>You have currently @{teams.size} team@if(teams.size > 1) { s } configured.</p>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for(team <- teams) {
+      <tr>
+        <td>@team.id</td>
+        <td>@team.name</td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+}
