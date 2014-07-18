@@ -1,4 +1,4 @@
-package io.yard.core
+package io.yard.module.core
 package controllers
 
 import scala.concurrent.Future
@@ -11,11 +11,11 @@ import play.api.libs.functional.syntax._
 import play.api.data._
 import play.api.data.Forms._
 
-import io.yard.core.Api
-import io.yard.core.models._
-import  io.yard.core.utils._
+import io.yard.module.core.Api
+import io.yard.models._
+import io.yard.utils._
 
-object CoreController extends ModuleController with Answer with Config {
+object CoreController extends ModuleController with Answer with Log {
 
   lazy val logger = initLogger("yardio.modules.core.controllers.core")
 
@@ -23,12 +23,12 @@ object CoreController extends ModuleController with Answer with Config {
 
   def applyRoute[RH <: RequestHeader, H >: Handler](rh: RH, default: RH ⇒ H) =
     (rh.method, rh.path.drop(path.length)) match {
-      case ("POST", "/outgoings") ⇒ handleOutgoing
-      case ("POST", "/commands")  ⇒ handleCommand
+      /*case ("POST", "/outgoings") ⇒ handleOutgoing
+      case ("POST", "/commands")  ⇒ handleCommand*/
       case _                      ⇒ default(rh)
     }
 
-  // OUTGOING WEBHOOK
+  /*// OUTGOING WEBHOOK
   val hookForm = Form(
     mapping(
       "token" -> nonEmptyText,
@@ -109,5 +109,5 @@ object CoreController extends ModuleController with Answer with Config {
         else broadcastCommand(command)
       }
     )
-  }
+  }*/
 }

@@ -1,14 +1,14 @@
-package io.yard.core
+package io.yard.module.core
 package controllers
 
 import play.api._
 import play.api.mvc._
 
-import io.yard.core.Api
-import io.yard.core.controllers._
-import  io.yard.core.utils._
+import io.yard.utils._
+import io.yard.models.ModuleController
+import io.yard.module.core.Api
 
-object yardioController extends ModuleController with Answer with Config {
+object YardioController extends ModuleController with Answer with Log {
 
   lazy val logger = initLogger("yardio.controllers.yardio")
 
@@ -20,12 +20,21 @@ object yardioController extends ModuleController with Answer with Config {
 
     (rh.method, paths(0), paths(1)) match {
       // Root route
-      case ("GET", None, None)  ⇒ Action { Ok(io.yard.html.index(Api.getModules, core.teams, path + "/modules/")) }
+      case ("GET", None, None)  ⇒ Action { Ok(io.yard.html.index(Api.getModules, Api.organizations.all, path + "/modules/")) }
       // Registered modules routes
       case (_, Some("modules"), Some(moduleName)) ⇒ {
         Api.getModule(moduleName) match {
           case Some(module) ⇒ module.controller.map { c =>
             c.setPrefix(path + "/modules/" + moduleName)
+            c.applyRoute(rh, default)
+          } getOrElse default(rh)
+          case _            ⇒ default(rh)
+        }
+      }
+      case (_, Some("providers"), Some(providerName)) ⇒ {
+        Api.getModule(providerName) match {
+          case Some(module) ⇒ module.controller.map { c =>
+            c.setPrefix(path + "/modules/" + providerName)
             c.applyRoute(rh, default)
           } getOrElse default(rh)
           case _            ⇒ default(rh)

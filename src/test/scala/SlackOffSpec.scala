@@ -1,4 +1,4 @@
-package io.yard.core.test
+package io.yard.module.core.test
 
 import scala.concurrent.Future
 
@@ -10,7 +10,7 @@ import play.api.mvc._
 import play.api.test._
 import play.api.test.Helpers._
 
-import io.yard.core.models._
+import io.yard.models._
 
 trait yardioSpec extends PlaySpec {
     def prefix: String = ""

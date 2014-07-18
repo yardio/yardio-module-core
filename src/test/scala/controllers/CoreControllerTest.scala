@@ -1,4 +1,4 @@
-package io.yard.core.test
+package io.yard.module.core.test
 package controllers
 
 import scala.concurrent.Future
@@ -11,9 +11,9 @@ import play.api.mvc._
 import play.api.test._
 import play.api.test.Helpers._
 
-import io.yard.core.test.yardioSpec
-import io.yard.core.controllers.CoreController
-import io.yard.core.models._
+import io.yard.module.core.test.yardioSpec
+import io.yard.module.core.controllers.CoreController
+import io.yard.models._
 
 class CoreControllerTest extends yardioSpec {
 

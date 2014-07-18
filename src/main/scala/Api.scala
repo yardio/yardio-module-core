@@ -1,4 +1,4 @@
-package io.yard.core
+package io.yard.module.core
 
 import scala.collection.mutable.Buffer
 import scala.concurrent.duration._
@@ -13,16 +13,40 @@ import play.api.libs.functional.syntax._
 import play.api.libs.ws.WS
 import play.api.Play.current
 
-import io.yard.core.models._
-import io.yard.core.utils._
-import io.yard.core.controllers.ModuleController
+import io.yard.utils._
+import io.yard.models._
+import io.yard.connector.api.Connector
 
-object Api extends Log with Config {
-  lazy val logger = initLogger("yardio.core.Api")
-
-  private var modules: Buffer[Module] = Buffer.empty
-
+object Api extends Log {
+  lazy val logger = initLogger("yardio.module.core.Api")
   implicit val timeout = Timeout(5 seconds)
+
+  // Connector
+  private var _connector: Option[Connector] = None
+  lazy val connector = _connector.getOrElse { throw new Exception("You MUST register one connector")}
+
+  def registerConnector(connect: Connector) = _connector match {
+    case None => {
+      _connector = Some(connect)
+    }
+    case _ => throw new Exception(" You can register only one connector")
+  }
+
+  // Providers
+  private var providers: Buffer[Provider] = Buffer.empty
+
+  def registerProvider(provider: Provider) = {
+    providers += provider
+    provider
+  }
+
+  def getProviders: Seq[Provider] = providers.toSeq
+
+  def getProvider(name: String): Option[Provider] = providers.find { _.name == name }
+
+
+  // Modules
+  private var modules: Buffer[Module] = Buffer.empty
 
   def registerModule(
     name: String,
@@ -47,32 +71,33 @@ object Api extends Log with Config {
 
   def getModule(name: String): Option[Module] = modules.find { _.name == name }
 
+
+  // Actors
   def tellAll(message: Any) = modules foreach { _.actor map { _ ! message } }
   def !!(message: Any) = tellAll(message)
 
   def askAll(message: Any) = modules foreach { _.actor map { _ ? message } }
   def ??(message: Any) = askAll(message)
 
-  def send(hook: IncomingWebHook, team: SlackTeam, token: Option[String] = None) = {
-    val teamName: String = team.name.toLowerCase
-    val incomingToken: String = token orElse team.tokens.get("incoming").flatMap(_.headOption) getOrElse ""
-    val url = s"https://${teamName}.slack.com/services/hooks/incoming-webhook?token=${incomingToken}"
-    val jsonWebhook = Json.toJson(hook)
 
-    debugStart(s"IncomingWebhooks.send at ${url}")
-    debug(Json.prettyPrint(jsonWebhook))
-    debugEnd
-
-    WS.url(url).post(Json.stringify(jsonWebhook))
+  // Messaging
+  def send(message: Message, organization: Organization) = {
+    getProviders foreach (_.send(message, organization))
   }
 
-  object teams {
-    def all: Seq[SlackTeam] = core.teams
-    def default: SlackTeam = core.teams(0)
-    def byIdOption(id: String): Option[SlackTeam] = core.teams.find( _.id == id )
-    def byNameOption(name: String): Option[SlackTeam] = core.teams.find( _.name == name )
-    def byId(id: String): SlackTeam = teams.byIdOption(id) getOrElse teams.default
-    def byName(name: String): SlackTeam = teams.byNameOption(name) getOrElse teams.default
-    def from(id: String, name: Option[String] = None): SlackTeam = teams.byIdOption(id) orElse name.flatMap(teams.byNameOption) getOrElse teams.default
+  def post(url: String, body: JsValue, headers: Map[String, String] = Map.empty) = {
+    WS.url(url).post(Json.stringify(body))
+  }
+
+
+  // Organizations
+  private lazy val orgas = Seq(Organization("Movio"))
+
+  object organizations {
+    def all: Seq[Organization] = orgas
+    def default: Organization = orgas(0)
+    def byNameOption(name: String): Option[Organization] = orgas.find( _.name == name )
+    def byName(name: String): Organization = organizations.byNameOption(name) getOrElse organizations.default
+    def from(value: String): Organization = organizations.byName(value)
   }
 }

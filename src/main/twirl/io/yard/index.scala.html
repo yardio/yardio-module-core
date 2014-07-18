@@ -1,4 +1,4 @@
-@(modules: Seq[io.yard.core.models.Module], teams: Seq[io.yard.core.models.SlackTeam], modulePrefix: String)
+@(modules: Seq[io.yard.models.Module], orgs: Seq[io.yard.models.Organization], modulePrefix: String)
 
 @io.yard.html.main {
 
@@ -22,19 +22,17 @@
   </tbody>
 </table>
 
-<p>You have currently @{teams.size} team@if(teams.size > 1) { s } configured.</p>
+<p>You have currently @{orgs.size} team@if(orgs.size > 1) { s } configured.</p>
 <table>
   <thead>
     <tr>
-      <th>ID</th>
       <th>Name</th>
     </tr>
   </thead>
   <tbody>
-    @for(team <- teams) {
+    @for(org <- orgs) {
       <tr>
-        <td>@team.id</td>
-        <td>@team.name</td>
+        <td>@org.name</td>
       </tr>
     }
   </tbody>
