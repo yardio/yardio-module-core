@@ -13,8 +13,8 @@ import play.api.libs.functional.syntax._
 import play.api.libs.ws.WS
 import play.api.Play.current
 
-import io.yard.utils._
-import io.yard.models._
+import io.yard.common.utils._
+import io.yard.common.models._
 import io.yard.connector.api.Connector
 
 object Api extends Log {
@@ -48,23 +48,9 @@ object Api extends Log {
   // Modules
   private var modules: Buffer[Module] = Buffer.empty
 
-  def registerModule(
-    name: String,
-    description: String,
-    controller: Option[ModuleController] = None,
-    actorProps: Option[Props] = None
-  ) = {
-    val newModule = Module(
-      name,
-      description,
-      controller,
-      actorProps,
-      actorProps map { Akka.system.actorOf(_, name) }
-    )
-
-    modules += newModule
-
-    newModule
+  def registerModule(module: Module) = {
+    modules += module
+    module
   }
 
   def getModules: Seq[Module] = modules.toSeq
@@ -81,12 +67,15 @@ object Api extends Log {
 
 
   // Messaging
-  def send(message: Message, organization: Organization) = {
-    getProviders foreach (_.send(message, organization))
+  def send(message: Message) = {
+    val organization: Organization = organizations.default
+    println(s"SEND [${message}] TO [${organization}]")
+    /*getProviders foreach (_.send(message, organization))*/
   }
 
-  def post(url: String, body: JsValue, headers: Map[String, String] = Map.empty) = {
-    WS.url(url).post(Json.stringify(body))
+  def send(message: Message, organization: Organization) = {
+    println(s"SEND [${message}] TO [${organization}]")
+    /*getProviders foreach (_.send(message, organization))*/
   }
 
 
@@ -94,10 +83,10 @@ object Api extends Log {
   private lazy val orgas = Seq(Organization("Movio"))
 
   object organizations {
-    def all: Seq[Organization] = orgas
-    def default: Organization = orgas(0)
-    def byNameOption(name: String): Option[Organization] = orgas.find( _.name == name )
-    def byName(name: String): Organization = organizations.byNameOption(name) getOrElse organizations.default
-    def from(value: String): Organization = organizations.byName(value)
+    def all: Seq[Organization] = connector.organizations.all
+    def default: Organization = connector.organizations.default
+    def byNameOption(name: String): Option[Organization] = connector.organizations.byNameOption(name)
+    def byName(name: String): Organization = connector.organizations.byName(name)
+    def from(value: String): Organization = connector.organizations.from(value)
   }
 }

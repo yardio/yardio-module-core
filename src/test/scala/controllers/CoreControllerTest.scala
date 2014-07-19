@@ -13,7 +13,7 @@ import play.api.test.Helpers._
 
 import io.yard.module.core.test.yardioSpec
 import io.yard.module.core.controllers.CoreController
-import io.yard.models._
+import io.yard.common.models._
 
 class CoreControllerTest extends yardioSpec {
 

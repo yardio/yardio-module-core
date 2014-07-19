@@ -10,7 +10,7 @@ import play.api.mvc._
 import play.api.test._
 import play.api.test.Helpers._
 
-import io.yard.models._
+import io.yard.common.models._
 
 trait yardioSpec extends PlaySpec {
     def prefix: String = ""

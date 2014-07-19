@@ -12,8 +12,8 @@ import play.api.data._
 import play.api.data.Forms._
 
 import io.yard.module.core.Api
-import io.yard.models._
-import io.yard.utils._
+import io.yard.common.models._
+import io.yard.common.utils._
 
 object CoreController extends ModuleController with Answer with Log {
 
