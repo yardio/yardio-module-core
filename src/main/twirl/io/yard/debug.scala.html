@@ -1,0 +1,24 @@
+@(attrs: Map[String, String])
+
+@io.yard.html.main {
+
+<h2>DEBUG</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for(kv <- attrs) {
+      <tr>
+        <td>@kv._1</td>
+        <td>@kv._2</td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+}
